@@ -105,15 +105,13 @@ def services_kb():
 async def start(msg: types.Message, state: FSMContext):
     if msg.from_user.id in approved_users:
         await msg.answer_photo(
-        PHOTO_ID,
-        caption=main_menu_caption(msg.from_user),
-        reply_markup=main_menu()
-    )
-    return
-
-    await state.set_state(ApplyFSM.source)
-    await msg.answer("1️⃣ <b>Откуда вы узнали о нас?</b>")
-
+            PHOTO_ID,
+            caption=main_menu_caption(msg.from_user),
+            reply_markup=main_menu()
+        )
+    else:
+        await state.set_state(ApplyFSM.source)
+        await msg.answer("1️⃣ <b>Откуда вы узнали о нас?</b>")
 # ================== APPLY ==================
 
 @router.message(ApplyFSM.source)
