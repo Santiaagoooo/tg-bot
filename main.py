@@ -104,7 +104,7 @@ def services_kb():
 @router.message(F.text == "/start")
 async def start(msg: types.Message, state: FSMContext):
     if msg.from_user.id in approved_users:
-    await msg.answer_photo(
+        await msg.answer_photo(
         PHOTO_ID,
         caption=main_menu_caption(msg.from_user),
         reply_markup=main_menu()
