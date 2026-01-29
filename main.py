@@ -20,6 +20,28 @@ TOKEN = os.getenv("BOT_TOKEN")
 PHOTO_ID = "AgACAgIAAxkBAAMvaXgIu6Ut4n2qlM_75xNZ122a0V8AArwOaxt0MMFLevqSfKlTDL8BAAMCAAN4AAM4BA"
 ADMIN_IDS = {8437167194}
 
+ROLES = {
+    "admin": "ADMIN",
+    "worker": "WORKER"
+}
+
+def get_user_role(user_id: int) -> str:
+    if user_id in ADMIN_IDS:
+        return ROLES["admin"]
+    return ROLES["worker"]
+
+def main_menu_caption(user: types.User) -> str:
+    role = get_user_role(user.id)
+
+    name = user.first_name or "Пользователь"
+    username = f"@{user.username}" if user.username else ""
+
+    return (
+        f"👋 <b>Привет, {name} {username}</b>\n"
+        f"🔑 Твоя роль: <b>{role}</b>\n\n"
+        "⚡ Доступные действия:"
+    )
+
 # ================== INIT ==================
 
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
@@ -82,8 +104,12 @@ def services_kb():
 @router.message(F.text == "/start")
 async def start(msg: types.Message, state: FSMContext):
     if msg.from_user.id in approved_users:
-        await msg.answer_photo(PHOTO_ID, caption="👋 Добро пожаловать", reply_markup=main_menu())
-        return
+    await msg.answer_photo(
+        PHOTO_ID,
+        caption=main_menu_caption(msg.from_user),
+        reply_markup=main_menu()
+    )
+    return
 
     await state.set_state(ApplyFSM.source)
     await msg.answer("1️⃣ <b>Откуда вы узнали о нас?</b>")
@@ -237,7 +263,7 @@ async def back_menu(call: types.CallbackQuery):
     await call.message.edit_media(
         InputMediaPhoto(
             media=PHOTO_ID,
-            caption="🏠 Главное меню"
+            caption=main_menu_caption(call.from_user)
         ),
         reply_markup=main_menu()
     )
